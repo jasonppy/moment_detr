@@ -94,7 +94,8 @@ def compute_mr_results(model, eval_loader, opt, epoch_i=None, criterion=None, tb
     write_tb = tb_writer is not None and epoch_i is not None
 
     mr_res = []
-    for batch in tqdm(eval_loader, desc="compute st ed scores"):
+    # for batch in tqdm(eval_loader, desc="compute st ed scores"):
+    for batch in eval_loader:
         query_meta = batch[0]
         model_inputs, targets = prepare_batch_inputs(batch[1], opt.device, non_blocking=opt.pin_memory)
         outputs = model(**model_inputs)

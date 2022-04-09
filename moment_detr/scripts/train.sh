@@ -1,17 +1,22 @@
+#!/bin/sh
+source ~/miniconda3/etc/profile.d/conda.sh
+conda activate tf2
+export CUDA_VISIBLE_DEVICES=0
+
 dset_name=hl
 ctx_mode=video_tef
 v_feat_types=slowfast_clip
 t_feat_type=clip 
-results_root=results
-exp_id=exp
+results_root=/saltpool0/scratch/pyp/vqhighlight/results
+exp_id=orig_no_saliency
 
 ######## data paths
-train_path=data/highlight_train_release.jsonl
-eval_path=data/highlight_val_release.jsonl
+train_path=/home/pyp/vqhighlight/data/highlight_train_release.jsonl
+eval_path=/home/pyp/vqhighlight/data/highlight_val_release.jsonl
 eval_split_name=val
 
 ######## setup video+text features
-feat_root=features
+feat_root=/saltpool0/data/pyp/vqhighlight/features
 
 # video features
 v_feat_dim=0
@@ -51,4 +56,4 @@ PYTHONPATH=$PYTHONPATH:. python moment_detr/train.py \
 --bsz ${bsz} \
 --results_root ${results_root} \
 --exp_id ${exp_id} \
-${@:1}
+${@:1} >> "/home/pyp/moment_detr/moment_detr/scripts/logs/${exp_id}.log" 2>&1

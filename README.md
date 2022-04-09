@@ -42,7 +42,8 @@ cd moment_detr
 Download [moment_detr_features.tar.gz](https://drive.google.com/file/d/1Hiln02F1NEpoW8-iPZurRyi-47-W2_B9/view?usp=sharing) (8GB), 
 extract it under project root directory:
 ```
-tar -xf path/to/moment_detr_features.tar.gz
+
+tar -xf moment_detr_features.tar.gz
 ```
 The features are extracted using Linjie's [HERO_Video_Feature_Extractor](https://github.com/linjieli222/HERO_Video_Feature_Extractor).
 

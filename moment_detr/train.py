@@ -47,9 +47,10 @@ def train_epoch(model, criterion, train_loader, optimizer, opt, epoch_i, tb_writ
 
     num_training_examples = len(train_loader)
     timer_dataloading = time.time()
-    for batch_idx, batch in tqdm(enumerate(train_loader),
-                                 desc="Training Iteration",
-                                 total=num_training_examples):
+    # for batch_idx, batch in tqdm(enumerate(train_loader),
+    #                              desc="Training Iteration",
+    #                              total=num_training_examples):
+    for batch_idx, batch in enumerate(train_loader):
         time_meters["dataloading_time"].update(time.time() - timer_dataloading)
 
         timer_start = time.time()
