@@ -46,3 +46,5 @@ credentials
 .Trashes
 ehthumbs.db
 Thumbs.db
+
+*.png

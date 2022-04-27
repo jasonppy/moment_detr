@@ -100,7 +100,7 @@ def compute_mr_results(model, eval_loader, opt, epoch_i=None, criterion=None, tb
         model_inputs, targets = prepare_batch_inputs(batch[1], opt.device, non_blocking=opt.pin_memory)
         outputs = model(**model_inputs)
         prob = F.softmax(outputs["pred_logits"], -1)  # (batch_size, #queries, #classes=2)
-        if opt.span_loss_type == "l1":
+        if opt.span_loss_type == "l1": # (center, width) regression
             scores = prob[..., 0]  # * (batch_size, #queries)  foreground label is 0, we directly take it
             pred_spans = outputs["pred_spans"]  # (bsz, #queries, 2)
             _saliency_scores = outputs["saliency_scores"].half()  # (bsz, L)
@@ -108,7 +108,7 @@ def compute_mr_results(model, eval_loader, opt, epoch_i=None, criterion=None, tb
             valid_vid_lengths = model_inputs["src_vid_mask"].sum(1).cpu().tolist()
             for j in range(len(valid_vid_lengths)):
                 saliency_scores.append(_saliency_scores[j, :int(valid_vid_lengths[j])].tolist())
-        else:
+        else: # (start, end) classification
             bsz, n_queries = outputs["pred_spans"].shape[:2]  # # (bsz, #queries, max_v_l *2)
             pred_spans_logits = outputs["pred_spans"].view(bsz, n_queries, 2, opt.max_v_l)
             # TODO use more advanced decoding method with st_ed product
