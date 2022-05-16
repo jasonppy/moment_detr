@@ -8,7 +8,7 @@ ctx_mode=video_tef
 v_feat_types=slowfast_clip
 t_feat_type=clip 
 results_root=/saltpool0/scratch/pyp/vqhighlight/results
-exp_id=orig_no_saliency
+exp_id=orig_with_saliency
 
 ######## data paths
 train_path=/home/pyp/vqhighlight/data/highlight_train_release.jsonl

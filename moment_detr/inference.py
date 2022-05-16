@@ -43,7 +43,7 @@ def eval_epoch_post_processing(submission, opt, gt_data, save_submission_filenam
     # IOU_THDS = (0.5, 0.7)
     logger.info("Saving/Evaluating before nms results")
     submission_path = os.path.join(opt.results_dir, save_submission_filename)
-    save_jsonl(submission, submission_path)
+    # save_jsonl(submission, submission_path)
 
     if opt.eval_split_name in ["val", "test"]:  # since test_public has no GT
         metrics = eval_submission(
@@ -207,11 +207,11 @@ def setup_model(opt):
         logger.info(f"Load checkpoint from {opt.resume}")
         checkpoint = torch.load(opt.resume, map_location="cpu")
         model.load_state_dict(checkpoint["model"])
-        if opt.resume_all:
-            optimizer.load_state_dict(checkpoint['optimizer'])
-            lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
-            opt.start_epoch = checkpoint['epoch'] + 1
-        logger.info(f"Loaded model saved at epoch {checkpoint['epoch']} from checkpoint: {opt.resume}")
+        # if opt.resume_all:
+        #     optimizer.load_state_dict(checkpoint['optimizer'])
+        #     lr_scheduler.load_state_dict(checkpoint['lr_scheduler'])
+        #     opt.start_epoch = checkpoint['epoch'] + 1
+        # logger.info(f"Loaded model saved at epoch {checkpoint['epoch']} from checkpoint: {opt.resume}")
     else:
         logger.warning("If you intend to evaluate the model, please specify --resume with ckpt path")
 
