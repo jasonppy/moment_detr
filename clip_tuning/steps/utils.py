@@ -525,7 +525,8 @@ def eval_submission(submission, ground_truth, verbose=True, match_number=True):
 
 def evaluate(qid_query_vid, similarity, scenedetect_path, gt_list, framerate):
     submission = []
-    for (qid, query, vid), sims in zip(qid_query_vid, similarity):
+    for (qid, query, vid), sims, gt_item in zip(qid_query_vid, similarity, gt_list):
+        assert vid == gt_item['vid']
         temp = vid.split("_")
         start, end = temp[-2], temp[-1]
         suffix = "_" + start + "_" + end

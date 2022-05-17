@@ -64,7 +64,7 @@ class ImageQueryDataset(Dataset):
                 vid = item['vid']
                 image_files = glob.glob(os.path.join(self.image_root, vid, "*.jpg"))
                 total_range = list(range(len(image_files)))
-                if len(total_range) > 140:
+                if len(total_range) > 120:
                     full_count += 1
 
                 # print("total images: ", len(total_range))
@@ -119,7 +119,8 @@ class ImageQueryDataset(Dataset):
                 positive_img.unsqueeze(0)
             image = torch.cat([positive_img, negative_img], dim=0)
         else:
-            img_fns = glob.glob(os.path.join(self.image_root, vid, "*.jpg"))
+            num_img = len(list(glob.glob(os.path.join(self.image_root, vid, "*.jpg"))))
+            img_fns = [os.path.join(self.image_root, vid, f"{i}.jpg") for i in range(num_img)]
             image = torch.stack([self.image_transform(Image.open(img_fn).convert('RGB')) for img_fn in img_fns], dim=0) # [total_img, 3, 224, 224]
             # print(image.shape)
         text = self.data[index]['query'].lower()

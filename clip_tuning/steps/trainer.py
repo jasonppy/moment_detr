@@ -81,8 +81,8 @@ class Trainer:
         image_features, text_features = self.model(cur_batch["image"], cur_batch["text"]) # [bsz*(self.args.in_video_negatives+self.args.num_positives), D]
         # print("train output shape: ", image_features.shape)
         # normalized features
-        image_features = image_features / image_features.norm(dim=1, keepdim=True)
-        text_features = text_features / text_features.norm(dim=1, keepdim=True)
+        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
         
         # sample in batch negatives, and combine them with in video negatives
         image_features = image_features.view(bsz, L, image_features.shape[-1])
@@ -128,7 +128,7 @@ class Trainer:
         flag = True
         step_per_epoch = int(self.train_data_length/self.args.batch_size)
         data_start_time = time.time()
-
+        self.validate(hide_progress=True)
         while flag:
             for i, batch in enumerate(self.train_loader):
                 data_end_time = time.time()
@@ -190,7 +190,7 @@ class Trainer:
 
     def validate_and_save(self, libri=False, places=False):
         self.model.eval()
-        acc = self.validate(hide_progress=False) # TODO change it to True once know the speed
+        acc = self.validate(hide_progress=True) # TODO change it to True once know the speed
         
         # acc = 0.1 # ignore validation, for debugging
         if acc > self.progress['best_acc']:
@@ -199,7 +199,7 @@ class Trainer:
             save_path = os.path.join(self.args.exp_dir,"best_bundle.pth")
             torch.save(
                 {
-                    "model": self.model.state_dict() if torch.cuda.device_count() > 1 else self.model.state_dict(),
+                    "model": self.model.module.state_dict() if torch.cuda.device_count() > 1 else self.model.state_dict(),
                     "optimizer":  self.optimizer.state_dict(),
                     "indices": self.train_sampler.state_dict(),
                 },save_path
@@ -209,7 +209,7 @@ class Trainer:
         save_path = os.path.join(self.args.exp_dir,"bundle.pth")
         torch.save(
             {
-                "model": self.model.state_dict() if torch.cuda.device_count() > 1 else self.model.state_dict(),
+                "model": self.model.module.state_dict() if torch.cuda.device_count() > 1 else self.model.state_dict(),
                 "optimizer":  self.optimizer.state_dict(),
                 "indices": self.train_sampler.state_dict(),
             },save_path
@@ -244,17 +244,19 @@ class Trainer:
                 # print("text features shape: ", text_features.shape)
                 
                 # normalized features
-                image_features = image_features / image_features.norm(dim=1, keepdim=True) # [1, L, D]
-                text_features = text_features / text_features.norm(dim=1, keepdim=True) # [1, D]
+                image_features = image_features / image_features.norm(dim=-1, keepdim=True) # [L, D]
+                text_features = text_features / text_features.norm(dim=-1, keepdim=True) # [1, D]
                 # raise 
 
                 # similarities
                 # below only work when val_batch_size == 1
                 assert self.args.val_batch_size == 1 and text_features.shape[0] == 1
-                sims = (image_features@text_features.t()).squeeze(1).cpu().numpy()# [L, 1] -> [L]
+                sims = (image_features*text_features).sum(1).cpu().numpy()# [L, 1] -> [L]
                 similarity.append(sims) 
                 # if len(sims) < 100:
                 #     print(len(sims))
+                # if i == 10:
+                #     break
 
         all_numbers = evaluate(qid_query_vid, similarity, os.path.join(self.args.pyscenedetect_root, "scenedetect"+str(self.args.alpha)), self.valid_loader.dataset.data, self.args.val_framerate)
 
@@ -299,7 +301,7 @@ class Trainer:
             optim_states = None
 
         if self.args.freeze_first_x != None:
-            freeze_names = ['model.CLIP.visual.conv1.', 'model.CLIP.visual.ln_pre.'] + [f'model.CLIP.visual.transformer.resblocks.{i}.' for i in range(self.args.freeze_first_x)] + [f'model.CLIP.transformer.resblocks.{i}.' for i in range(self.args.freeze_first_x)] + ['model.CLIP.transformer.ln_final']
+            freeze_names = ['model.visual.conv1.', 'model.visual.ln_pre.'] + [f'model.visual.transformer.resblocks.{i}.' for i in range(self.args.freeze_first_x)] + [f'model.transformer.resblocks.{i}.' for i in range(self.args.freeze_first_x)] + ['model.transformer.ln_final']
             for n, p in model.named_parameters():
                 for fn in freeze_names:
                     if n.startswith(fn):
