@@ -86,6 +86,9 @@ if __name__ == "__main__":
                 pred_relevant_windows = []
                 # vid_feats_fn = "/saltpool0/data/pyp/vqhighlight/features/clip_features/" + vid + ".npz"
                 vid_feats_fn = "/saltpool0/data/pyp/vqhighlight/scenedetect_features/uniform/" + anuj_vid + ".npz"
+                if not os.path.isfile(vid_feats_fn):
+                    vid_feats_fn = "/saltpool0/data/pyp/vqhighlight/scenedetect_features/uniform/" + vid + ".npz"
+                    assert os.path.isfile(vid_feats_fn)
                 vid_feats = dict(np.load(vid_feats_fn))['features']
                 pooler_output_norm = LA.norm(query_embed['pooler_output'])
                 cur_sim = []
